@@ -1,0 +1,9 @@
+FROM nginx
+COPY index.html /usr/share/nginx/html/index.html
+    
+ADD nginx.sh /nginx.sh
+
+
+CMD ["/bin/bash","/nginx.sh"]
+
+
