@@ -1,25 +1,30 @@
-#!/usr/bin/env groovy
+node  ('slave'){
+    def app
 
-import groovy.json.JsonOutput
+    stage('Clone repository') {
+        /* Let's make sure we have the repository cloned to our workspace */
 
-def slackNotificationChannel = 'project1'     // ex: = "builds"
-
-def notifySlack(text, channel, attachments) {
-    def slackURL = 'https://hooks.slack.com/services/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'
-    def jenkinsIcon = 'https://wiki.jenkins-ci.org/download/attachments/2916393/logo.png'
-
-    def payload = JsonOutput.toJson([text: text,
-        channel: channel,
-        username: "Jenkins",
-        icon_url: jenkinsIcon,
-        attachments: attachments
-    ])
-
-    sh "curl -X POST --data-urlencode \'payload=${payload}\' ${slackURL}"
-}
-
-node {
-    stage("Post to Slack") {
-        notifySlack("Success!", slackNotificationChannel, [])
+        checkout scm
     }
-}
+
+    stage('Build images') {
+        /* This builds the actual image; synonymous to
+         * docker build on the command line. */
+             echo "${env.BUILD_NUMBER}"
+             sh 'docker build -t dsubhransu/file -f webpage .'
+    }
+    stage('Push Image') {
+            withDockerRegistry([ credentialsId: "88abc791-3f6a-46d0-9361-d13175590d46", url: "" ]){
+            echo "${env.BUILD_NUMBER}"
+            sh "docker tag dsubhransu/webapp linuxcloudops/website-test:${env.BUILD_NUMBER}"
+            sh "docker push dsubhransu/webapp:${env.BUILD_NUMBER}"
+           }
+   }
+    stage('Deploy ') {  
+           
+           /* sh " docker srevice create --name web -p 9089:80  linuxcloudops/website-test:${env.BUILD_NUMBER}"  */
+             echo "dsubhransu/webapp:${env.BUILD_NUMBER}"
+             sh " sed -i 's/website-test/website-test:${env.BUILD_NUMBER}/g' docker-stack.yml"
+             sh "docker stack deploy -c docker-stack.yml web" 
+         }
+   }
