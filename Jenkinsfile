@@ -11,7 +11,7 @@ node  ('slave-1'){
         /* This builds the actual image; synonymous to
          * docker build on the command line. */
              echo "${env.BUILD_NUMBER}"
-             sh 'docker build -t dsubhransu/file -f webpage .'
+             sh 'docker build -t dsubhransu/file -f dockerfile .'
     }
     stage('Push Image') {
             withDockerRegistry([ credentialsId: "88abc791-3f6a-46d0-9361-d13175590d46", url: "" ]){
