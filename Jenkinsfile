@@ -16,7 +16,7 @@ node  ('slave-1'){
     stage('Push Image') {
             withDockerRegistry([ credentialsId: "88abc791-3f6a-46d0-9361-d13175590d46", url: "" ]){
             echo "${env.BUILD_NUMBER}"
-            sh "docker tag dsubhransu/webapp linuxcloudops/website-test:${env.BUILD_NUMBER}"
+            sh "docker tag dsubhransu/webapp dsubhransu/webapp:${env.BUILD_NUMBER}"
             sh "docker push dsubhransu/webapp:${env.BUILD_NUMBER}"
            }
    }
